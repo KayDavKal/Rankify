@@ -41,6 +41,26 @@ async def first_command(interaction):
     embed.set_author(name=user.name, icon_url=user.avatar)
     await interaction.response.send_message(embed=embed)
 
+#rank command
+@tree.command(name="rank", description="See your or others rank")
+async def rank(interaction, user: discord.Member = None):
+  if user is None:
+    user = interaction.user
+  User = await get_user(interaction.guild.id, user.id)
+  if User is not True:
+    await add_user(interaction.guild.id, user.id)
+    User = await get_user(interaction.guild.id, user.id)
+  level = await get_level(interaction.guild.id, user.id)
+  xp = await get_xp(interaction.guild.id, user.id)
+  embed = discord.Embed(
+    title = f"{user.name}'s rank",
+    color = discord.Color.yellow()
+  )
+  embed.add_field(name="XP", value=f"{xp}")
+  embed.add_field(name="Level", value=f"{level}")
+  embed.set_author(name=user.name, icon_url=user.avatar)
+  await interaction.response.send_message(embed=embed)
+
 @client.event
 async def on_ready():
   await tree.sync()
