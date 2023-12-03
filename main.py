@@ -37,10 +37,18 @@ async def on_message(interaction):
 async def first_command(interaction):
     user = interaction.user
     latency = round(client.latency * 1000)
+    if latency <= 100:
+      color = discord.Color.green()
+    elif latency <= 300:
+      color = discord.Color.orange()
+    elif latency <= 500:
+      color = discord.Color.red()
+    elif latency >= 500:
+      color = discord.Color.dark_red()
     embed = discord.Embed(
       title = "Pong!",
       description = f"It took me {latency} ms to reply!",
-      color = discord.Color.green()
+      color = color
     )
     embed.set_author(name=user.name, icon_url=user.avatar)
     await interaction.response.send_message(embed=embed)
