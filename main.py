@@ -75,8 +75,9 @@ async def rank(interaction, user: discord.Member = None):
   elif num == 2:
     embed.set_footer(text="Get better lol.")
   await create_progress_bar(interaction.guild.id, user.id, 100)
-  embed.set_image(url="")
-  await interaction.response.send_message(embed=embed)
+  file = discord.File("progress_bar.png", filename="progress_bar.png")
+  embed.set_image(url="attachment://progress_bar.png")
+  await interaction.response.send_message(file=file, embed=embed)
   os.remove("progress_bar.png")
 
 #daily command
