@@ -54,6 +54,31 @@ async def first_command(interaction):
     embed.set_author(name=user.name, icon_url=user.avatar)
     await interaction.response.send_message(embed=embed)
 
+#rank command
+@tree.command(name="rank", description="See your or others rank")
+async def rank(interaction, user: discord.Member = None):
+  if user is None:
+    user = interaction.user
+  num = random.randint(0,2)
+  xp = await  get_xp(interaction.guild.id, user.id)
+  level = await get_level(interaction.guild.id, user.id)
+  embed = discord.Embed(
+    color = discord.Color.yellow()
+  )
+  embed.add_field(name="Level", value=f"```{level}```")
+  embed.add_field(name="XP", value=f"```{xp}```")
+  embed.set_author(name=f"{user.name}'s rank", icon_url=user.avatar)
+  if num == 0:
+    embed.set_footer(text="")
+  elif num == 1:
+    embed.set_footer(text="You can gain XP by chatting in the server.")
+  elif num == 2:
+    embed.set_footer(text="Get better lol.")
+  await create_progress_bar(interaction.guild.id, user.id, 100)
+  embed.set_image(url="")
+  await interaction.response.send_message(embed=embed)
+  os.remove("progress_bar.png")
+
 #daily command
 @tree.command(name="daily", description="Get your daily reward")
 async def daily(interaction):
