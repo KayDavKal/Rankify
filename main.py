@@ -6,6 +6,7 @@ from app import stay_alive
 from progressbar import create_progress_bar
 
 import random
+from datetime import datetime, timedelta
 
 import discord
 from discord.ext import commands
@@ -53,28 +54,28 @@ async def first_command(interaction):
     embed.set_author(name=user.name, icon_url=user.avatar)
     await interaction.response.send_message(embed=embed)
 
-@tree.command(name="rank", description="See your or others rank")
-async def rank(interaction, user: discord.Member = None):
-  if user is None:
-    user = interaction.user
-  num = random.randint(0,2)
-  xp = await  get_xp(interaction.guild.id, user.id)
-  level = await get_level(interaction.guild.id, user.id)
-  embed = discord.Embed(
-    title = f"{user.name}'s rank",
+#daily command
+@tree.command(name="daily", description="Get your daily reward")
+async def daily(interaction):
+  guild_id = interaction.guild.id
+  user = interaction.user
+  ranxp = random.randint(1, 100)
+  if interaction.user.id in cooldowns and datetime.utcnow() < cooldowns[interaction.user.id]:
+    embed = discord.Embed(
+      title = "Slow down a bit!",
+      description=f"You can get your daily reward again in ```{str(timedelta(seconds=(cooldowns[interaction.user.id] - datetime.utcnow()).seconds))}h```",
+      color = discord.Color.red()
+    )
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+  else:
+    await add_xp(guild_id, user.id, ranxp)
+    embed = discord.Embed(
+    title = "Daily Rewards colected!",
     color = discord.Color.yellow()
-  )
-  embed.add_field(name="Level", value=f"```{level}```")
-  embed.add_field(name="XP", value=f"```{xp}```")
-  embed.set_author(name=user.name, icon_url=user.avatar)
-  if num == 0:
-    embed.set_footer(text="")
-  elif num == 1:
-    embed.set_footer(text="You can gain XP by chatting in the server.")
-  elif num == 2:
-    embed.set_footer(text="Get better lol.")
-  #embed.set_image(url=create_progress_bar(interaction.guild.id, user.id, 1000))
-  await interaction.response.send_message(embed=embed)
+    )
+    embed.add_field(name="XP", value=f"```{ranxp}```")
+    await interaction.response.send_message(embed=embed)
+    cooldowns[interaction.user.id] = datetime.utcnow() + timedelta(seconds=86400)
   
 @client.event
 async def on_ready():
